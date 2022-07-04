@@ -38,6 +38,7 @@ def min_peso(grafo, camino):
     for i in range(1, len(camino)):
         if grafo.get((camino[i-1], camino[i]))["flujo"] < path_flow:
             path_flow = grafo.get((camino[i-1], camino[i]))["flujo"]
+            arista = (camino[i-1], camino[i])
     return path_flow
 
 def encontrar_adyacentes(grafo, vertice):
@@ -54,7 +55,7 @@ def existe_arista(grafo, u, v):
     return False
 
 def actualizar_grafo_residual(grafo_residual, u, v, valor):
-    peso_anterior = grafo_residual[(u, v)]["flujo"]
+    """peso_anterior = grafo_residual[(u, v)]["flujo"]
     costo_anterior = 0
     if peso_anterior == valor:
         costo_anterior = - grafo_residual[(u, v)]["costo"]
@@ -64,34 +65,43 @@ def actualizar_grafo_residual(grafo_residual, u, v, valor):
     if not existe_arista(grafo_residual, v, u):
         grafo_residual[(v, u)] = {"costo": costo_anterior, "flujo": valor}
     else:
-        grafo_residual[(v, u)]["flujo"] = peso_anterior + valor
+        grafo_residual[(v, u)]["flujo"] = peso_anterior + valor"""
+    if valor == 0:
+        del grafo_residual[(u, v)]
+    else:
+        grafo_residual[(u, v)]["flujo"] = valor
 
+def crear_grafo_residual(grafo):
+    gr = deepcopy(grafo)
+    for arista, valor in grafo.items():
+        if arista != 'origen' and arista != 'destino':
+            gr[(arista[1], arista[0])] = {"costo": -valor["costo"], "flujo": 0}
+    return gr
 
 def flujo(grafo):
     flujo_max = 0
     flujo = {}
-    for arista, _ in grafo.items():
+    for arista, peso in grafo.items():
         if arista != "origen" and arista != "destino":
-            flujo[arista] = 0
+            flujo[arista] = peso["flujo"]
             flujo[(arista[1], arista[0])] = 0
 
-    grafo_residual = deepcopy(grafo)
+    grafo_residual = crear_grafo_residual(grafo)
     camino = obtener_camino(grafo_residual, grafo.get('origen'), grafo.get('destino'))
     while camino is not None:
-        capacidad_residual_camino = min_peso(grafo, camino)
+        capacidad_residual_camino = min_peso(grafo_residual, camino)
         flujo_max += capacidad_residual_camino
         for i in range(1, len(camino)):
             if camino[i] in encontrar_adyacentes(grafo, camino[i-1]):
-                flujo[(camino[i-1], camino[i])] += capacidad_residual_camino
-                actualizar_grafo_residual(grafo_residual, camino[i-1], camino[i], capacidad_residual_camino)
-            else:
-                flujo[(camino[i], camino[i-1])] -= capacidad_residual_camino
-                actualizar_grafo_residual(grafo_residual, camino[i], camino[i-1], capacidad_residual_camino)
+                flujo[(camino[i-1], camino[i])] -= capacidad_residual_camino
+                flujo[(camino[i], camino[i-1])] += capacidad_residual_camino
+                actualizar_grafo_residual(grafo_residual, camino[i-1], camino[i], flujo[(camino[i-1], camino[i])])
+                actualizar_grafo_residual(grafo_residual, camino[i], camino[i-1], flujo[(camino[i], camino[i-1])])
         
         camino = obtener_camino(grafo_residual, grafo.get('origen'), grafo.get('destino'))
-    
-    return flujo_max, flujo
+
+    return flujo_max, flujo, grafo_residual
 
 def ford_fulkerson(grafo):
-    f_max, f = flujo(grafo)
-    return f_max, f
+    f_max, f, grafo_residual = flujo(grafo)
+    return f_max, f, grafo_residual

@@ -27,20 +27,31 @@ def min_peso_arista(grafo, camino):
 
 def cancelacion_de_ciclos(fileName):
     grafo, nodos = obtener_aristas(fileName)
-    f_max, flujo = ford_fulkerson(grafo)
+    f_max, flujo, grafo_residual = ford_fulkerson(grafo)
     costo = 0
-    existe_ciclo_negativo, ciclo = bellman_ford(grafo, nodos)
+    ciclos_negativos = []
+    print(grafo_residual)
+    existe_ciclo_negativo, ciclo = bellman_ford(grafo_residual, nodos, ciclos_negativos)
     while existe_ciclo_negativo:
-        capacidad_residual_minima, arista_a_eliminar = min_peso_arista(grafo, ciclo)
+        capacidad_residual_minima, arista_a_eliminar = min_peso_arista(grafo_residual, ciclo)
         for i in range(1, len(ciclo)):
-            if arista_a_eliminar != (ciclo[i-1], ciclo[i]) and ciclo[i] in encontrar_adyacentes(grafo, ciclo[i-1]):
+            if arista_a_eliminar != (ciclo[i-1], ciclo[i]) and ciclo[i] in encontrar_adyacentes(grafo_residual, ciclo[i-1]):
                 flujo[(ciclo[i-1], ciclo[i])] += capacidad_residual_minima
-        if arista_a_eliminar != (ciclo[0], ciclo[len(ciclo) - 1]) and ciclo[len(ciclo) - 1] in encontrar_adyacentes(grafo, ciclo[0]):
-            flujo[(ciclo[0], ciclo[len(ciclo) - 1])] += capacidad_residual_minima
+            #if arista_a_eliminar != (ciclo[0], ciclo[len(ciclo) - 1]) and ciclo[len(ciclo) - 1] in encontrar_adyacentes(grafo_residual, ciclo[0]):
+                #flujo[(ciclo[0], ciclo[len(ciclo) - 1])] += capacidad_residual_minima
+                #print("sumo {} a arista {}".format(capacidad_residual_minima, (ciclo[i-1], ciclo[i])))
+        print("elimino arista", arista_a_eliminar)
+        del grafo_residual[arista_a_eliminar]
         flujo[arista_a_eliminar] = 0
+        existe_ciclo_negativo, ciclo = bellman_ford(grafo_residual, nodos, ciclos_negativos)
+    
+    print(flujo)
+    print(grafo)
     for arista, valor_flujo in flujo.items():
-        if existe_arista(grafo, arista[0], arista[1]):
-            costo += valor_flujo * grafo[arista]["costo"]
+        if valor_flujo > 0:
+            if existe_arista(grafo, arista[1], arista[0]):
+                costo += valor_flujo * grafo[(arista[1], arista[0])]["costo"]
+
     print("Flujo", f_max)
     print("Costo", costo)
     return f_max, costo
