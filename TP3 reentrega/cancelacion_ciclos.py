@@ -48,11 +48,11 @@ def cancelacion_de_ciclos(fileName):
         print("flujo antes minpf", flujo)
         capacidad_residual_minima, arista_a_eliminar = min_peso_arista(grafo, grafo_residual, ciclo)
         for i in range(1, len(ciclo)):
-            if arista_a_eliminar != (ciclo[i-1], ciclo[i]) and ciclo[i] in encontrar_adyacentes(grafo_residual, ciclo[i-1]):
+            #if arista_a_eliminar != (ciclo[i-1], ciclo[i]) and ciclo[i] in encontrar_adyacentes(grafo_residual, ciclo[i-1]):
                 flujo[(ciclo[i], ciclo[i-1])] += capacidad_residual_minima
                 flujo[(ciclo[i-1], ciclo[i])] -= capacidad_residual_minima
-            else:
-                flujo[(ciclo[i], ciclo[i-1])] += capacidad_residual_minima
+            #else:
+                #flujo[(ciclo[i], ciclo[i-1])] += capacidad_residual_minima
             #if arista_a_eliminar != (ciclo[0], ciclo[len(ciclo) - 1]) and ciclo[len(ciclo) - 1] in encontrar_adyacentes(grafo_residual, ciclo[0]):
                 #flujo[(ciclo[0], ciclo[len(ciclo) - 1])] += capacidad_residual_minima
                 #print("sumo {} a arista {}".format(capacidad_residual_minima, (ciclo[i-1], ciclo[i])))
