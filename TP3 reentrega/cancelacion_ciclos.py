@@ -25,8 +25,8 @@ def cancelacion_de_ciclos(fileName):
     while existe_ciclo_negativo:
         capacidad_residual_minima, arista_a_eliminar = min_peso_arista(grafo, grafo_residual, ciclo)
         for i in range(1, len(ciclo)):
-                flujo[(ciclo[i], ciclo[i-1])] += capacidad_residual_minima
-                flujo[(ciclo[i-1], ciclo[i])] -= capacidad_residual_minima
+            flujo[(ciclo[i], ciclo[i-1])] += capacidad_residual_minima
+            flujo[(ciclo[i-1], ciclo[i])] -= capacidad_residual_minima
         del grafo_residual[arista_a_eliminar]
         existe_ciclo_negativo, ciclo = bellman_ford(grafo_residual, nodos, ciclos_negativos)
     
