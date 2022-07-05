@@ -53,13 +53,12 @@ def camino_minimo(aristas, nodos, ciclos_negativos):
                 if tramo not in ciclos_negativos:
                     ciclos_negativos.append(tramo)
                     ciclo, costo = encontrar_ciclo_negativo(padre, aristas, v, w)
-                    print("Existe al menos un ciclo negativo en el grafo. {} -> costo: {} ".format(string_ciclo(ciclo), costo))
+                    #print("Ciclo negativo en el grafo. {} -> costo: {} ".format(string_ciclo(ciclo), costo))
                     c = []
                     for i in range(len(ciclo) - 1, -1, -1):
                         c.append(ciclo[i])
                     c.append(c[0])
                     return True, c
-    print("No hay ciclos negativos")
     return False, None
 
 def bellman_ford(grafo, nodos, ciclos_negativos):
