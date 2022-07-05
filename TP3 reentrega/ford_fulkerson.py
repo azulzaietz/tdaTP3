@@ -66,7 +66,9 @@ def actualizar_grafo_residual(grafo_residual, u, v, valor):
         grafo_residual[(v, u)] = {"costo": costo_anterior, "flujo": valor}
     else:
         grafo_residual[(v, u)]["flujo"] = peso_anterior + valor"""
+    print((u,v))
     if valor == 0:
+        print("elimino", (u,v))
         del grafo_residual[(u, v)]
     else:
         grafo_residual[(u, v)]["flujo"] = valor
@@ -91,6 +93,7 @@ def flujo(grafo):
     while camino is not None:
         capacidad_residual_camino = min_peso(grafo_residual, camino)
         flujo_max += capacidad_residual_camino
+        print("camino", camino)
         for i in range(1, len(camino)):
             if camino[i] in encontrar_adyacentes(grafo, camino[i-1]):
                 flujo[(camino[i-1], camino[i])] -= capacidad_residual_camino
