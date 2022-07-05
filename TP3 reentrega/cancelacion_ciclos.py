@@ -16,14 +16,25 @@ from file_reader import *
         f(e) += adjustment 
 END"""
 
-def min_peso_arista(grafo, camino):
-    path_flow = INFINITO
+def min_peso_arista(grafo, grafo_residual, camino):
+    capacidad_residual = INFINITO
     arista = ""
+    print("---------- EN MIN PATH FLOW ---------")
+    print(grafo)
+    print(camino)
     for i in range(1, len(camino)):
-        if grafo.get((camino[i-1], camino[i]))["flujo"] < path_flow:
-            path_flow = grafo.get((camino[i-1], camino[i]))["flujo"]
-            arista = (camino[i-1], camino[i])
-    return path_flow, arista
+        if existe_arista(grafo, camino[i-1], camino[i]):
+            if grafo.get((camino[i-1], camino[i]))["flujo"] < capacidad_residual:
+                print("min flow: ", (camino[i-1], camino[i]), grafo.get((camino[i-1], camino[i]))["flujo"])
+                capacidad_residual = grafo.get((camino[i-1], camino[i]))["flujo"]
+                arista = (camino[i-1], camino[i])
+        else:
+            if grafo.get((camino[i], camino[i-1]))["flujo"] < capacidad_residual:
+                print("min flow: ", (camino[i], camino[i-1]), grafo.get((camino[i], camino[i-1]))["flujo"])
+                capacidad_residual = grafo.get((camino[i], camino[i-1]))["flujo"]
+                arista = (camino[i-1], camino[i])
+    print("---------- EN MIN PATH FLOW ---------")
+    return capacidad_residual, arista
 
 def cancelacion_de_ciclos(fileName):
     grafo, nodos = obtener_aristas(fileName)
@@ -33,10 +44,11 @@ def cancelacion_de_ciclos(fileName):
     print(grafo_residual)
     existe_ciclo_negativo, ciclo = bellman_ford(grafo_residual, nodos, ciclos_negativos)
     while existe_ciclo_negativo:
-        capacidad_residual_minima, arista_a_eliminar = min_peso_arista(grafo_residual, ciclo)
+        capacidad_residual_minima, arista_a_eliminar = min_peso_arista(grafo, grafo_residual, ciclo)
         for i in range(1, len(ciclo)):
             if arista_a_eliminar != (ciclo[i-1], ciclo[i]) and ciclo[i] in encontrar_adyacentes(grafo_residual, ciclo[i-1]):
-                flujo[(ciclo[i-1], ciclo[i])] += capacidad_residual_minima
+                flujo[(ciclo[i], ciclo[i-1])] += capacidad_residual_minima
+                flujo[(ciclo[i-1], ciclo[i])] -= capacidad_residual_minima
             #if arista_a_eliminar != (ciclo[0], ciclo[len(ciclo) - 1]) and ciclo[len(ciclo) - 1] in encontrar_adyacentes(grafo_residual, ciclo[0]):
                 #flujo[(ciclo[0], ciclo[len(ciclo) - 1])] += capacidad_residual_minima
                 #print("sumo {} a arista {}".format(capacidad_residual_minima, (ciclo[i-1], ciclo[i])))
